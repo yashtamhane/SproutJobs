@@ -361,7 +361,7 @@ def command_run(config: AppConfig, args: argparse.Namespace) -> int:
         # dashboard still starts, so a transient network problem does not cost
         # the user their one command.
         _explain_empty_registry(summary)
-    if summary.discovery_errors:
+    elif summary.discovery_errors:
         # Boards were still fetched, so this is a warning, not a failure: one
         # provider going down must not look like the tool being broken.
         print(

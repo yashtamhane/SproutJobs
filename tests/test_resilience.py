@@ -345,3 +345,27 @@ class TestEmptyDatabaseGuidance:
         assert code == 0
         assert "1 discovery source issue" in error
         assert "refreshed normally" in error
+
+    def test_an_empty_registry_is_not_also_told_boards_refreshed_normally(
+        self, tmp_path: Path, capsys
+    ) -> None:
+        """The two messages contradict each other; only one may appear."""
+
+        project = self._project(tmp_path)
+        (project / "config.toml").write_text(
+            "[discovery]\n"
+            "enabled = true\n"
+            'seed_file = ""\n'
+            'public_dataset_urls = ["https://host.invalid/gone.md"]\n'
+            "[network]\n"
+            "request_timeout = 1.0\n"
+            "retries = 0\n"
+            "min_request_interval = 0.0\n",
+            encoding="utf-8",
+        )
+        cli_main(["--config", str(project / "config.toml"), "run", "--no-report"])
+        error = capsys.readouterr().err
+        assert "No Ashby boards are known yet" in error
+        assert "refreshed normally" not in error, (
+            "nothing was refreshed, so that note is a lie here"
+        )

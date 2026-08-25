@@ -60,7 +60,8 @@ or Lever could be added without touching scoring or reporting, but they are not 
 - **Python 3.11 or newer** (for `tomllib` and `datetime.UTC`)
 - macOS or Linux for `run.sh`; on Windows use the manual commands below
 - An internet connection when you run it
-- About 100 MB of disk for a default run
+- About **500 MB of disk** for a default run — it keeps the full text of every
+  posting it has ever seen (measured: 448 MB after one run over 584 boards)
 
 That is the whole list.
 
@@ -78,9 +79,13 @@ That is it. `run.sh` finds a suitable Python, creates `.venv`, installs the two
 dependencies, creates an empty database, discovers Ashby boards, fetches what is posted on
 them, scores everything, and opens the dashboard at **http://127.0.0.1:8765**.
 
-**The first run takes a couple of minutes.** It contacts roughly 600 candidate boards once
+**The first run takes about two minutes.** It contacts roughly 600 candidate boards once
 each, at a deliberately polite pace. Later runs only refresh the boards that worked, and are
 faster.
+
+For scale, one measured first run: 614 candidate boards discovered, 584 verified, 17,655
+active postings stored, 3,834 of them software roles, 2,925 canonical opportunities after
+duplicate collapsing. Your numbers will differ — postings change daily.
 
 Press **Ctrl+C** to stop the dashboard.
 

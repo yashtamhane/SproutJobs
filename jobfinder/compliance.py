@@ -766,7 +766,7 @@ def _check_determinism(report: AuditReport) -> None:
 
     sample = (
         "Software Engineer, New Grad",
-        "0-2 years of experience. BS in Computer Science. Sponsorship not available.",
+        "0-2 years of experience. BS in Computer Science.",
         "New York, NY",
     )
     results = [score_job(*sample).as_dict() for _ in range(5)]
