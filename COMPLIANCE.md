@@ -88,9 +88,17 @@ equivalent. SproutJobs reads documented JSON over HTTPS.
 
 ### Honest identification
 
-Requests carry a `User-Agent` naming the tool and its version. It does not
-impersonate a browser. You are encouraged to append your own contact URL so an
-operator who wants to talk to you about your traffic can.
+Requests carry a `User-Agent` naming the tool, its version, and the project's
+repository URL, so an operator who sees this traffic can find out what it is:
+
+```
+SproutJobs/1.0 (+https://github.com/yashtamhane/SproutJobs)
+```
+
+It does not impersonate a browser. It is a fixed string that names the
+*project*, not the person running it — nothing inspects your git remote, your
+account, or your machine to build it. Running a fork, or want to be reachable
+at your own address? Override `network.user_agent` in `config.toml`.
 
 ### No automatic applications
 

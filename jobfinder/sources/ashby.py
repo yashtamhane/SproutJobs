@@ -13,6 +13,7 @@ from urllib.parse import quote
 
 import requests
 
+from ..config import DEFAULT_USER_AGENT
 from ..models import BoardFetchResult, BoardValidation, NormalizedJob
 from ..normalize import (
     ashby_board_url,
@@ -54,10 +55,7 @@ class AshbySource(JobSource):
         backoff_factor: float = 0.75,
         min_request_interval: float = 0.15,
         include_compensation: bool = True,
-        user_agent: str = (
-            "ashby-job-finder/1.0 "
-            "(personal job discovery; respectful public API client)"
-        ),
+        user_agent: str = DEFAULT_USER_AGENT,
         session: requests.Session | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:

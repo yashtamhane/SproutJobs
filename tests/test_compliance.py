@@ -150,6 +150,24 @@ class TestNetworkLimits:
         config.network.user_agent = "SproutJobs/1.0 (+https://example.invalid/repo)"
         assert check(run_audit(config, project_root=ROOT), "User-Agent").status == PASS
 
+    def test_the_shipped_user_agent_is_already_contactable(
+        self, config: AppConfig
+    ) -> None:
+        """The default carries the project URL, so it needs no warning."""
+
+        result = check(run_audit(config, project_root=ROOT), "User-Agent")
+        assert result.status == PASS
+        assert "github.com/yashtamhane/SproutJobs" in result.detail
+        assert result.remedy == ""
+
+    def test_a_user_agent_with_no_way_to_reach_anyone_warns(
+        self, config: AppConfig
+    ) -> None:
+        config.network.user_agent = "SproutJobs/1.0"
+        result = check(run_audit(config, project_root=ROOT), "User-Agent")
+        assert result.status == WARN
+        assert result.remedy
+
 
 class TestCodeProperties:
     """These read the real package, so they fail if the code regresses."""

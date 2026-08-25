@@ -60,9 +60,17 @@ class SearchConfig:
     include_compensation: bool = True
 
 
-#: Identifies the client without claiming to be a browser.  Users are
-#: encouraged to append their own contact URL; see config.toml.
-DEFAULT_USER_AGENT = "SproutJobs/1.0 (local job-search client; respectful public API use)"
+#: Identifies the client honestly, without claiming to be a browser.
+#:
+#: The URL is the *project* repository, so an operator who sees this traffic
+#: can find out what the tool is.  It is deliberately a fixed string: nothing
+#: inspects the git remote or infers who cloned the repository, because a
+#: User-Agent that silently names whoever is running it would leak an identity
+#: the user never chose to send.
+#:
+#: A fork that wants to be reachable at its own address overrides
+#: ``network.user_agent`` in config.toml rather than editing this.
+DEFAULT_USER_AGENT = "SproutJobs/1.0 (+https://github.com/yashtamhane/SproutJobs)"
 
 
 @dataclass

@@ -81,6 +81,10 @@ class TestNoPaidDependencies:
             "web.archive.org",  # free public URL index
             "raw.githubusercontent.com",  # public repository documents
             "127.0.0.1",  # the local dashboard, which never leaves the machine
+            # Not an endpoint: the project URL inside the User-Agent string.
+            # test_the_project_url_is_only_an_identification_string keeps it
+            # from quietly becoming one.
+            "github.com",
         }
         host_pattern = re.compile(r"https?://([A-Za-z0-9.-]+)")
         found = set()
@@ -90,6 +94,57 @@ class TestNoPaidDependencies:
         found -= {"example.com", "search.example", "www.example.com", "localhost"}
         unexpected = {host for host in found if host not in allowed}
         assert not unexpected, f"unexpected network host(s): {sorted(unexpected)}"
+
+    def test_the_project_url_is_only_an_identification_string(self) -> None:
+        """``github.com`` may appear in the User-Agent, and nowhere else.
+
+        The host allow-list above has to tolerate it, which would otherwise
+        create room for a real request to github.com to slip in unnoticed.
+        This pins it to the one constant that is allowed to mention it.
+        """
+
+        offenders = []
+        for path in source_files():
+            for number, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), start=1
+            ):
+                if "github.com" not in line:
+                    continue
+                stripped = line.strip()
+                is_comment = stripped.startswith("#")
+                is_user_agent = stripped.startswith("DEFAULT_USER_AGENT")
+                if not (is_comment or is_user_agent):
+                    offenders.append(f"{path.relative_to(ROOT)}:{number}: {stripped}")
+        assert not offenders, f"github.com used outside the User-Agent: {offenders}"
+
+    def test_the_default_user_agent_names_the_project_not_a_person(self) -> None:
+        from jobfinder.config import DEFAULT_USER_AGENT
+
+        assert DEFAULT_USER_AGENT.startswith("SproutJobs/")
+        assert "https://github.com/yashtamhane/SproutJobs" in DEFAULT_USER_AGENT
+        # A bare profile URL would identify the author rather than the tool.
+        assert not DEFAULT_USER_AGENT.rstrip(")").endswith("github.com/yashtamhane")
+        assert "Mozilla" not in DEFAULT_USER_AGENT
+
+    def test_the_user_agent_is_a_fixed_string_not_an_inferred_identity(self) -> None:
+        """Nothing may derive the User-Agent from the machine it runs on."""
+
+        import re as _re
+
+        inference = _re.compile(
+            r"(?:git\s+(?:config|remote)|getpass\.getuser|os\.getlogin|"
+            r"socket\.gethostname|pwd\.getpwuid|GITHUB_(?:USER|ACTOR|REPOSITORY))"
+        )
+        offenders = []
+        for path in source_files():
+            for number, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), start=1
+            ):
+                # Prose explaining that this is *not* done is not doing it.
+                code = line.split("#", 1)[0]
+                if inference.search(code):
+                    offenders.append(f"{path.relative_to(ROOT)}:{number}")
+        assert not offenders, f"identity inferred from the environment in {offenders}"
 
     def test_scoring_is_deterministic(self) -> None:
         """Same input, same verdict — no sampling, no model, no clock."""

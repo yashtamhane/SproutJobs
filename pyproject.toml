@@ -32,10 +32,9 @@ dependencies = [
 dev = ["pytest>=8,<9"]
 
 [project.urls]
-# Replace OWNER with the account this repository is published under.
-Homepage = "https://github.com/OWNER/SproutJobs"
-Repository = "https://github.com/OWNER/SproutJobs"
-Issues = "https://github.com/OWNER/SproutJobs/issues"
+Homepage = "https://github.com/yashtamhane/SproutJobs"
+Repository = "https://github.com/yashtamhane/SproutJobs"
+Issues = "https://github.com/yashtamhane/SproutJobs/issues"
 
 [project.scripts]
 # The project is SproutJobs; the importable package keeps its original name.

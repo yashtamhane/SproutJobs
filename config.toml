@@ -49,10 +49,14 @@ backoff_seconds = 0.75
 # Minimum seconds between the *start* of any two requests, enforced globally
 # across all workers rather than per thread.
 min_request_interval = 0.15
-# Identify yourself honestly. Appending a contact URL is good manners and lets
-# an operator reach you rather than just blocking you:
-#   user_agent = "SproutJobs/1.0 (+https://github.com/you/SproutJobs)"
-user_agent = "SproutJobs/1.0 (local job-search client; respectful public API use)"
+# Identifies the client to the servers it reads. The URL names the SproutJobs
+# project itself, so an operator seeing this traffic can find out what the tool
+# is; it is not tied to whoever is running it, and nothing here inspects your
+# git remote or your account.
+#
+# Running a fork? Point this at your own repository instead:
+#   user_agent = "MyFork/1.0 (+https://github.com/you/MyFork)"
+user_agent = "SproutJobs/1.0 (+https://github.com/yashtamhane/SproutJobs)"
 
 
 # Discovery is pluggable: each source below is an independent provider that can
