@@ -1,0 +1,85 @@
+# ---------------------------------------------------------------------------
+# SproutJobs fetches live job data at runtime and keeps it on your machine.
+# None of it belongs in the repository.
+# ---------------------------------------------------------------------------
+
+# Runtime job data: the SQLite history, the discovery cache, anything derived.
+/data/
+data/
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite
+*.db
+
+# Generated reports: the CSV export and the static HTML snapshot.
+/output/
+output/
+/jobs.csv
+/index.html
+
+# seeds.txt ships as an empty, commented template and is tracked. If you keep a
+# second private list, name it seeds.local.txt and it stays out of the repo.
+/seeds.local.txt
+
+# Python environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Python build/bytecode artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Test and type-checker caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Editor and IDE state
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.\#*
+\#*\#
+
+# OS clutter
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+# Logs and scratch files
+*.log
+logs/
+tmp/
+scratch/
+*.tmp
+*.bak
+*.orig
+
+# Secrets. SproutJobs core needs none; this is a guard, not a feature.
+.env
+.env.*
+*.pem
+*.key
+credentials.json

@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sproutjobs"
+version = "1.0.0"
+description = "Free, local-first discovery and filtering for new-grad software jobs hosted on Ashby."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["jobs", "job-search", "ashby", "new-grad", "entry-level", "ats"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+  "Topic :: Office/Business",
+]
+# The core stays keyless, free and deterministic; see COMPLIANCE.md.
+dependencies = [
+  "requests>=2.31,<3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
+[project.urls]
+# Replace OWNER with the account this repository is published under.
+Homepage = "https://github.com/OWNER/SproutJobs"
+Repository = "https://github.com/OWNER/SproutJobs"
+Issues = "https://github.com/OWNER/SproutJobs/issues"
+
+[project.scripts]
+# The project is SproutJobs; the importable package keeps its original name.
+sproutjobs = "jobfinder.cli:main"
+jobfinder = "jobfinder.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["jobfinder*"]
+
+[tool.pytest.ini_options]
+# The default run is deterministic and offline; live checks are opt-in with
+# `python -m pytest -m integration`.
+addopts = "-ra --strict-markers -m 'not integration'"
+testpaths = ["tests"]
+markers = [
+  "integration: requires live network access",
+]

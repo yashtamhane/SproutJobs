@@ -1,0 +1,27 @@
+{
+  "organizationName": "Example Labs",
+  "jobs": [
+    {
+      "id": "job_001",
+      "title": "Software Engineer, New Grad",
+      "department": "Engineering",
+      "team": "Product Engineering",
+      "employmentType": "FullTime",
+      "location": "New York, NY",
+      "secondaryLocations": [
+        {"name": "Remote, US"},
+        {"location": {"name": "Jersey City, NJ"}}
+      ],
+      "workplaceType": "Hybrid",
+      "publishedAt": "2026-08-15T14:30:00.000Z",
+      "jobUrl": "https://jobs.ashbyhq.com/example/job_001",
+      "applyUrl": "https://jobs.ashbyhq.com/example/job_001/application",
+      "descriptionHtml": "<h2>About the role</h2><p>Recent graduates are welcome.</p><ul><li>0-2 years of experience</li><li>Bachelor's in CS</li></ul><script>ignored()</script>",
+      "descriptionPlain": "Recent graduates are welcome. 0-2 years of experience. Bachelor's in CS.",
+      "compensation": {
+        "compensationTierSummary": "$105,000 – $125,000 USD",
+        "scrapeableCompensationSalarySummary": "$105K – $125K"
+      }
+    }
+  ]
+}

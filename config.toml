@@ -1,0 +1,148 @@
+# SproutJobs configuration.
+#
+# Every value here is a generic public default. Nothing in this file is
+# personal, and nothing in it is required: delete the file and the built-in
+# defaults in jobfinder/config.py are identical.
+#
+# Almost nothing needs changing to get started. `./run.sh` works as shipped.
+
+
+[candidate]
+# Collection scope. SproutJobs targets United States roles. Postings whose only
+# location is outside the U.S. are still stored; they are left out of the
+# reports unless you set report.include_non_us below.
+country = "US"
+
+# The graduation cohort the eligibility rules compare postings against. A
+# posting saying "Class of 2026" is compatible with the date below; one saying
+# "must graduate in 2028" is not. The large majority of postings say nothing
+# about graduation at all and are unaffected either way.
+#
+# Set this to your own expected graduation date. After changing it, run
+# `python -m jobfinder rescore` to re-apply it to postings already stored.
+graduation_date = "2026-05-31"
+
+
+[search]
+# The dashboard filters the full dataset live, so these only set what it opens
+# with. Nothing is thrown away.
+min_score = 0
+max_required_years = 2
+# Freshness filter the dashboard opens with. 0 = any age, which is the right
+# default: plenty of still-open roles were posted months ago.
+days_to_show = 0
+include_possible_matches = true
+# Ask Ashby to include compensation data where the employer published it.
+include_compensation = true
+
+
+[network]
+# Conservative by design. These limits apply to every outbound request:
+# board fetches, discovery reads and robots.txt lookups alike.
+request_timeout = 20.0
+# Worker threads. The configuration validator refuses anything above 8.
+concurrency = 4
+retries = 3
+# Doubling delay between retries, with jitter. A 429 response overrides this
+# with the server's own Retry-After value.
+backoff_seconds = 0.75
+# Minimum seconds between the *start* of any two requests, enforced globally
+# across all workers rather than per thread.
+min_request_interval = 0.15
+# Identify yourself honestly. Appending a contact URL is good manners and lets
+# an operator reach you rather than just blocking you:
+#   user_agent = "SproutJobs/1.0 (+https://github.com/you/SproutJobs)"
+user_agent = "SproutJobs/1.0 (local job-search client; respectful public API use)"
+
+
+# Discovery is pluggable: each source below is an independent provider that can
+# fail without affecting the others. Nothing here guesses at slugs — every
+# candidate is a URL somebody actually published, and every candidate is still
+# verified against Ashby's own API before it becomes a company.
+#
+# Each source is audited in SOURCES.md, including why it ships on or off.
+[discovery]
+enabled = true
+refresh_hours = 24
+archive_refresh_hours = 168
+max_new_candidates_per_run = 6000
+retry_inactive_after_hours = 168
+# robots.txt is fetched and honored before every discovery request. A host that
+# says no is skipped and reported, never worked around.
+respect_robots = true
+
+# 1. ENABLED. Public open-source job-list repositories that already publish
+#    Ashby board links. Read as raw files over HTTPS, no account, no key.
+#    Roughly 600 candidate boards. See SOURCES.md for each repository.
+public_dataset_urls = [
+  "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json",
+  "https://raw.githubusercontent.com/SimplifyJobs/Summer2026-Internships/dev/.github/scripts/listings.json",
+  "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/README.md",
+  "https://raw.githubusercontent.com/vanshb03/New-Grad-2026/main/README.md",
+  "https://raw.githubusercontent.com/vanshb03/Summer2026-Internships/dev/README.md",
+  "https://raw.githubusercontent.com/speedyapply/2026-SWE-College-Jobs/main/NEW_GRAD_USA.md",
+  "https://raw.githubusercontent.com/speedyapply/2026-SWE-College-Jobs/main/README.md",
+  "https://raw.githubusercontent.com/pittcsc/Summer2026-Internships/dev/README.md",
+  "https://raw.githubusercontent.com/Ouckah/Summer2025-Internships/main/README.md",
+  "https://raw.githubusercontent.com/coderQuad/New-Grad-Positions/master/README.md",
+  "https://raw.githubusercontent.com/ReaVNaiL/New-Grad-2024/main/README.md",
+  "https://raw.githubusercontent.com/jobright-ai/2025-Software-Engineer-New-Grad/master/README.md",
+  "https://raw.githubusercontent.com/cvrve/New-Grad-2025/main/README.md",
+]
+
+# 2. ENABLED, but empty. Any other public page that legitimately links to
+#    jobs.ashbyhq.com/<slug>. Checked against the site's robots.txt first.
+public_page_urls = []
+
+# 3. DISABLED. Common Crawl's URL index. index.commoncrawl.org publishes
+#    "Disallow: /" with an allow-list that does not cover the query endpoint
+#    this would need. Their policy is honored, not worked around.
+#    `python -m jobfinder compliance` reports turning this on as a FAIL.
+use_common_crawl = false
+common_crawl_indexes = 2
+
+# 4. DISABLED BY DEFAULT, and safe to turn on. The Internet Archive's public
+#    CDX index reports every jobs.ashbyhq.com path anyone ever archived,
+#    widening discovery from ~600 boards to ~5,000.
+#
+#    This is not a policy question: web.archive.org publishes no robots.txt and
+#    the CDX index is documented for programmatic use. It is off because of
+#    what it costs — a first run of half an hour instead of a couple of
+#    minutes, a database of gigabytes instead of megabytes, and thousands of
+#    board requests to Ashby from every machine running this tool.
+#
+#    Turn it on here, or for one run with `./run.sh --deep`.
+use_wayback = false
+wayback_limit = 200000
+
+# 5. DISABLED, and empty. Add a search endpoint ONLY if you are actually
+#    permitted to query it automatically — a SearXNG instance you host, say.
+#    Most large search engines forbid this, and SproutJobs does not work around
+#    that. robots.txt is honored either way.
+search_endpoints = []
+
+# 6. ENABLED. Your own list: one slug or board URL per line, '#' for comments.
+seed_file = "seeds.txt"
+
+
+[database]
+# Local SQLite, inside this project, ignored by Git. Nothing is ever uploaded.
+path = "data/jobfinder.sqlite3"
+inactive_after_failures = 3
+
+
+[output]
+# Generated files. Also ignored by Git — they contain live job text.
+directory = "output"
+dashboard = "index.html"
+csv = "jobs.csv"
+
+
+[report]
+# The static HTML export renders one card per job, so it is capped. The live
+# dashboard and the CSV are not: both cover the complete set.
+max_dashboard_jobs = 1500
+include_non_software = false
+include_closed_days = 14
+# Set true to include roles whose only location is outside the United States.
+include_non_us = false

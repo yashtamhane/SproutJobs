@@ -1,0 +1,17 @@
+# Ashby boards you want tracked, one per line.
+#
+# This file ships empty on purpose: SproutJobs does not distribute a company
+# list. Boards are discovered from public sources at runtime, and anything you
+# add here is yours.
+#
+# Either form works:
+#     notion
+#     https://jobs.ashbyhq.com/notion
+#
+# Lines starting with '#' are ignored. Every slug here is verified against
+# Ashby's own public API before it becomes a company, exactly like an
+# automatically discovered one — a typo simply fails to verify.
+#
+# This file is read on every run, so adding a line and re-running is enough.
+# You can also add one without editing the file:
+#     python -m jobfinder add-company notion
