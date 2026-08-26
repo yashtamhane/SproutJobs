@@ -70,7 +70,7 @@ That is the whole list.
 ## Quick start
 
 ```bash
-git clone <this repository>
+git clone https://github.com/yashtamhane/SproutJobs.git
 cd SproutJobs
 ./run.sh
 ```

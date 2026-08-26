@@ -10,7 +10,9 @@ library plus `requests`, no framework, no build step, no magic.
 You need **Python 3.11 or newer** (for `tomllib` and `datetime.UTC`).
 
 ```bash
-git clone <your fork>
+# Fork the repository on GitHub first, then clone your fork
+# (replace your-account with your GitHub account name):
+git clone https://github.com/your-account/SproutJobs.git
 cd SproutJobs
 python3.12 -m venv .venv
 source .venv/bin/activate

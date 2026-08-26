@@ -409,15 +409,15 @@ class TestRobotsWildcards:
         policy = self._policy(
             "User-agent: *\nDisallow: /\n\nAllow: /$\nAllow: /collinfo.json$\n"
         )
-        assert policy.allows("ashby-job-finder/1.0", "/collinfo.json") is True
-        assert policy.allows("ashby-job-finder/1.0", "/") is True
+        assert policy.allows("SproutJobs/1.0", "/collinfo.json") is True
+        assert policy.allows("SproutJobs/1.0", "/") is True
 
     def test_the_blanket_disallow_still_covers_everything_else(self) -> None:
         policy = self._policy(
             "User-agent: *\nDisallow: /\n\nAllow: /$\nAllow: /collinfo.json$\n"
         )
-        assert policy.allows("ashby-job-finder/1.0", "/CC-MAIN-2026-30-index?url=x") is False
-        assert policy.allows("ashby-job-finder/1.0", "/collinfo.json.bak") is False
+        assert policy.allows("SproutJobs/1.0", "/CC-MAIN-2026-30-index?url=x") is False
+        assert policy.allows("SproutJobs/1.0", "/collinfo.json.bak") is False
 
     def test_a_star_wildcard_matches_a_query_string(self) -> None:
         policy = self._policy("User-agent: *\nDisallow: /*?\nAllow: /?*\n")

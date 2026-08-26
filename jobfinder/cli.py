@@ -57,8 +57,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="jobfinder",
         description=(
-            "Discover Ashby job boards, rank entry-level software roles, and generate "
-            "a local dashboard with direct application links."
+            "SproutJobs — discover Ashby job boards, rank entry-level software roles, "
+            "and generate a local dashboard with direct application links."
         ),
     )
     parser.add_argument("--version", action="version", version=f"SproutJobs {__version__}")
