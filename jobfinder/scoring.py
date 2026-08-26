@@ -287,6 +287,23 @@ def score_job(
             "No experience requirement was stated. This posting is not ruled out — "
             "it simply does not say — so read the requirements yourself."
         )
+    # Entry-level wording is recorded even when a stated number decided the
+    # category against it.  It carries no points — the number already settled
+    # the score — but it stays visible, because a posting titled "New Graduate"
+    # has plainly said something and the card must not claim otherwise.
+    if experience.contradiction and experience.positive_signal:
+        reasons.append(
+            ScoreReason(
+                experience.positive_signal,
+                0,
+                experience.positive_phrase,
+                experience.positive_confidence,
+            )
+        )
+        warnings.append(
+            "This posting contains both entry-level wording and a stated experience "
+            "requirement that contradicts it; read the requirements before applying."
+        )
 
     # Likewise, one title-seniority penalty prevents "Senior Staff" double counts.
     senior_matches: list[tuple[int, str, str, bool]] = []
@@ -446,7 +463,13 @@ def score_job(
         evidence_confidence = LOW
 
     positive_substantive = [reason for reason in substantive if reason.delta > 0]
-    if not positive_substantive and experience.known:
+    if (
+        not positive_substantive
+        and experience.known
+        # A posting that used entry-level wording has given evidence, even if a
+        # stated number outranked it.  Claiming none was found would be false.
+        and not experience.has_entry_level_wording
+    ):
         # A location tag or a degree mention is context, not evidence that an
         # entry-level candidate qualifies.  Say so plainly rather than letting
         # the dashboard imply the role was matched on something meaningful.

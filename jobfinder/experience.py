@@ -178,6 +178,19 @@ class ExperienceEvidence:
     phrase: str | None = None
     known: bool = True
     hard_blocker: bool = False
+    # Entry-level wording found in the posting, recorded independently of the
+    # verdict above.  A stated number can outrank friendly wording for the
+    # *category* without erasing the fact that the wording was there — a
+    # posting titled "New Graduate" has said something, and the dashboard must
+    # never claim no entry-level evidence exists.
+    positive_signal: str | None = None
+    positive_phrase: str | None = None
+    positive_confidence: str = LOW
+    contradiction: bool = False
+
+    @property
+    def has_entry_level_wording(self) -> bool:
+        return self.positive_signal is not None
 
     @property
     def label(self) -> str:
@@ -440,6 +453,10 @@ def classify_experience(
         THREE_PLUS_REQUIRED,
     }:
         if wording is not None:
+            # The number decides the category, but the wording is kept beside
+            # it and the disagreement is stated.  Losing the wording here is
+            # what used to make an explicit new-grad posting report that no
+            # entry-level evidence existed at all.
             return ExperienceEvidence(
                 required_band.category,
                 required_band.confidence,
@@ -452,6 +469,10 @@ def classify_experience(
                 required_band.requirement,
                 required_band.phrase,
                 hard_blocker=required_band.hard_blocker,
+                positive_signal=wording.category,
+                positive_phrase=wording.phrase,
+                positive_confidence=wording.confidence,
+                contradiction=True,
             )
         return required_band
 

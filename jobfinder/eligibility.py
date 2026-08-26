@@ -184,15 +184,85 @@ _NON_EXPERIENCE_CONTEXT = re.compile(
     r"\b(?:age|aged|older|vesting|vested|401k|leave|vacation|anniversary|ago|"
     r"contract(?: term| duration)?|temporary assignment)\b"
 )
-# Durations that describe the existing team or the company rather than the
-# applicant.  "our team has new grads and product leaders with 20 years
-# experience" is a welcome sign, not a 20-year requirement.
-_THIRD_PARTY_EXPERIENCE = re.compile(
-    r"\b(?:our|the)\s+(?:team|teams|staff|founders?|leadership|engineers?|colleagues?)\b"
-    r"[^.;]{0,80}$"
-    r"|\b(?:team|teams|colleagues?|founders?|leaders?|engineers?|people|folks|veterans?)\s+"
-    r"(?:has|have|with|includes?|including|of)\b[^.;]{0,60}$"
-    r"|\b(?:founded|building|operating|in business|shipping)\b[^.;]{0,60}$"
+# ---------------------------------------------------------------------------
+# Experience attribution
+#
+# A duration only becomes a *requirement* when the experience belongs to the
+# applicant.  Job descriptions are full of durations that belong to somebody
+# else — "Prophet Security's founding team brings more than 30 years of
+# cybersecurity experience" is a boast about the founders, and reading it as a
+# thirty-year requirement turns an explicit new-grad posting into a hard
+# blocker.
+#
+# So each match is attributed rather than pattern-matched: look at the clause
+# leading up to the number, find the marker nearest to it, and let that decide.
+# Whichever wins — a third-party subject or a candidate-requirement cue — is the
+# one the sentence is actually about.
+# ---------------------------------------------------------------------------
+
+# "our", "the", "their", or any possessive company name ("Prophet Security's").
+# The gap is one word at most: "our founding team", "our small team", but not
+# "our ideal staff security engineer", which is a description of the applicant.
+_COMPANY_POSSESSIVE = r"(?:our|the|their|its|his|her|[a-z0-9][\w.&'-]*'s)\s+(?:\w+\s+){0,1}"
+# Collectives and roles that are plainly not the applicant.  "candidate",
+# "applicant", "engineer" and "you" are deliberately absent: a posting saying
+# "our ideal engineer will have 5+ years" is describing the reader.
+_THIRD_PARTY_NOUN = (
+    r"(?:founding\s+team|leadership\s+team|executive\s+team|management\s+team|"
+    r"exec\s+team|teams?|staff|founders?|leadership|executives?|advisors?|"
+    r"advisers?|investors?|operators?|backers?|board|company|organi[sz]ation|"
+    r"ceo|cto|cfo|coo|cpo|ciso|veterans?|alumni)"
+)
+# Verbs used when describing experience somebody has *accumulated*.  Copulas
+# and prepositions are excluded: "our engineers are ..." and "team of ..." are
+# far too common to carry meaning here.
+_THIRD_PARTY_VERB = (
+    r"(?:has|have|had|brings?|bring|brought|boasts?|combines?|combined|spent|"
+    r"spans?|spanning|shares?|shared|contributes?|carr(?:y|ies|ied)|"
+    r"averages?|averaging|accumulated|amassed|includes?|including)"
+)
+_THIRD_PARTY_ATTRIBUTION = re.compile(
+    # "our founding team brings", "Prophet Security's founders have"
+    rf"\b{_COMPANY_POSSESSIVE}{_THIRD_PARTY_NOUN}\s+(?:\w+\s+){{0,1}}?{_THIRD_PARTY_VERB}\b"
+    # Bare plural subject with a plural verb: "founders bring".  Restricted to
+    # subjects that can only be the company's own people — "engineers have" and
+    # "people who have" describe candidates just as often.
+    r"|\b(?:founders|executives|advisors|advisers|investors|operators|backers)\s+"
+    r"(?:\w+\s+){0,1}?"
+    r"(?:have|bring|brought|share|contribute|average|carry|combine|span|boast|"
+    r"accumulated|amassed)\b"
+    # Somebody else's experience the applicant is exposed to, not asked for.
+    r"|\b(?:backed|advised|mentored|funded)\s+by\b"
+    r"|\b(?:learn|learning)\s+(?:from|alongside)\b"
+    r"|\btogether,?\s+(?:our|the|we)\b"
+    # Explicitly pooled experience is never one applicant's requirement.
+    r"|\b(?:combined|collective(?:ly)?|cumulative)\s+"
+    r"(?:\w+\s+){0,2}?(?:experience|years)\b"
+    r"|\b(?:years|experience)\s+(?:of\s+)?(?:combined|collective|cumulative)\b"
+    # Company history: "Founded in 2017, we have spent 8 years building this."
+    # Narrow on purpose — a bare "building" is far too common in duty prose to
+    # carry any attribution meaning.
+    r"|\bfounded\s+in\s+(?:19|20)\d{2}"
+    r"|\bwe(?:'ve|\s+have)\s+(?:\w+\s+){0,2}?"
+    r"(?:spent|been\s+(?:building|operating|shipping|serving|around))\b"
+    r"|\b(?:the\s+)?company\s+(?:has\s+)?(?:been|spent)\b"
+)
+
+#: How far back a subject may sit and still govern a duration.
+_ATTRIBUTION_LOOKBACK = 160
+
+# Cues that the duration is being asked of the reader.  These override a
+# third-party phrase when they sit closer to the number, which keeps sentences
+# like "working with our engineers, you must have 5+ years" correct.
+_CANDIDATE_ATTRIBUTION = re.compile(
+    r"\byou(?:'ll|'ve| will| have| bring| need| should| must)?\b"
+    r"|\byour\b|\bcandidates?\b|\bapplicants?\b"
+    r"|\bwe(?:'re| are)?\s+(?:seeking|looking\s+for|hiring|require|need|want)\b"
+    r"|\brequire(?:s|d|ment|ments)?\b|\bminimum\b|\bat\s+least\b|\bmust\s+have\b"
+    r"|\bqualifications?\b|\bideal\s+candidate\b|\bsomeone\s+with\b"
+    r"|\bprofessional\s+experience\b|\brelevant\s+experience\b"
+    r"|\bproven\s+(?:track\s+record|experience)\b|\bexperience\s+required\b"
+    r"|\bseeking\s+(?:an?\s+)?\w+\s+with\b|\blooking\s+for\b"
 )
 _PREFERRED_CONTEXT = re.compile(
     r"\b(?:preferred|ideally|nice to have|bonus|desired|a plus|would be a plus)\b"
@@ -200,6 +270,85 @@ _PREFERRED_CONTEXT = re.compile(
 _REQUIRED_CONTEXT = re.compile(
     r"\b(?:require[sd]?|requirements?|must|minimum|at least|need(?:s|ed)?|you have)\b"
 )
+
+
+def _clause_before(source: str, position: int) -> str:
+    """Text from the start of the current clause up to ``position``.
+
+    Attribution is decided within a clause rather than a fixed character
+    window, so a sentence three lines earlier can never claim a number, and a
+    long subject ("Prophet Security's founding team brings more than ") is
+    never truncated away.
+    """
+
+    # Bullet lists rarely contain sentence punctuation, and normalization has
+    # already collapsed their newlines, so the separators that survive — " - ",
+    # " • " — have to count as boundaries too.  Without that, one boast at the
+    # top of a requirements list would capture every number below it.
+    boundary = max(
+        source.rfind(".", 0, position),
+        source.rfind(";", 0, position),
+        source.rfind("!", 0, position),
+        source.rfind("?", 0, position),
+        source.rfind(":", 0, position),
+        source.rfind("\n", 0, position),
+        source.rfind("•", 0, position),
+        source.rfind(" - ", 0, position),
+        source.rfind(" – ", 0, position),
+        source.rfind(" — ", 0, position),
+    )
+    # A hard look-back cap, because a run-on paragraph is not evidence that a
+    # subject sixty words earlier governs this number.
+    start = max(boundary + 1, position - _ATTRIBUTION_LOOKBACK)
+    return source[start:position]
+
+
+def _belongs_to_applicant(source: str, position: int) -> bool:
+    """Decide whether a duration at ``position`` is being asked of the reader.
+
+    Whichever attribution marker comes *first* in the clause governs it, because
+    that is the clause's subject.  "You have a degree, backed by 5+ years of
+    experience" is a requirement — the subject is "you", even though "backed by"
+    sits nearer the number.  "Backed by operators with 20+ years" is not.
+
+    With no marker at all the default is to accept, because requirement bullets
+    routinely name no subject ("5+ years of backend experience").
+    """
+
+    clause = _clause_before(source, position)
+    if not clause:
+        return True
+    third_party = _THIRD_PARTY_ATTRIBUTION.search(clause)
+    if third_party is None:
+        return True
+    candidate = _CANDIDATE_ATTRIBUTION.search(clause)
+    return candidate is not None and candidate.start() < third_party.start()
+
+
+def experience_attribution(text: str | None) -> list[dict[str, Any]]:
+    """Explain, per duration found, who it was attributed to.
+
+    Exposed for auditing: it is the only way to see why a number in a posting
+    was or was not treated as a requirement.
+    """
+
+    source = _clean(text)
+    seen: list[dict[str, Any]] = []
+    spans: list[tuple[int, int]] = []
+    for pattern in _YEAR_PATTERNS:
+        for match in pattern.finditer(source):
+            if any(match.start() < end and match.end() > start for start, end in spans):
+                continue
+            spans.append(match.span())
+            clause = _clause_before(source, match.start())
+            seen.append(
+                {
+                    "phrase": match.group(0),
+                    "applicant": _belongs_to_applicant(source, match.start()),
+                    "clause": clause[-120:],
+                }
+            )
+    return seen
 
 
 def extract_year_requirements(text: str | None) -> tuple[ExperienceRequirement, ...]:
@@ -241,10 +390,9 @@ def extract_year_requirements(text: str | None) -> tuple[ExperienceRequirement, 
                 continue
             if _NON_EXPERIENCE_CONTEXT.search(nearby) and not explicit_experience:
                 continue
-            # Look only at the text immediately before the number: a duration
-            # attributed to the team is not a requirement on the applicant.
-            preceding = source[max(0, match.start() - 90) : match.start()]
-            if _THIRD_PARTY_EXPERIENCE.search(preceding):
+            # Whose experience is this?  A duration attributed to the founders
+            # is not a requirement on the applicant.
+            if not _belongs_to_applicant(source, match.start()):
                 continue
 
             left_boundary = max(
