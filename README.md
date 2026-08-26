@@ -77,7 +77,7 @@ cd SproutJobs
 
 That is it. `run.sh` finds a suitable Python, creates `.venv`, installs the two
 dependencies, creates an empty database, discovers Ashby boards, fetches what is posted on
-them, scores everything, and opens the dashboard at **http://127.0.0.1:8765**.
+them, scores everything, and opens the local dashboard automatically in your browser.
 
 **The first run takes about two minutes.** It contacts roughly 600 candidate boards once
 each, at a deliberately polite pace. Later runs only refresh the boards that worked, and are
