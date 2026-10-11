@@ -476,7 +476,7 @@ def _check_network_limits(report: AuditReport, config: AppConfig) -> None:
 
     if network.retries > 0 and network.backoff_seconds > 0:
         report.add(
-            "retries use exponential backoff",
+            "Ashby board retries use exponential backoff",
             PASS,
             f"network.retries = {network.retries}, "
             f"network.backoff_seconds = {network.backoff_seconds} "
@@ -484,14 +484,14 @@ def _check_network_limits(report: AuditReport, config: AppConfig) -> None:
         )
     elif network.retries == 0:
         report.add(
-            "retries use exponential backoff",
+            "Ashby board retries use exponential backoff",
             WARN,
             "network.retries = 0. Nothing is retried, which is polite but makes a "
             "single blip look like a dead board.",
         )
     else:
         report.add(
-            "retries use exponential backoff",
+            "Ashby board retries use exponential backoff",
             FAIL,
             f"network.retries = {network.retries} with "
             f"backoff_seconds = {network.backoff_seconds}: retrying without a "
@@ -501,15 +501,16 @@ def _check_network_limits(report: AuditReport, config: AppConfig) -> None:
 
     if network.min_request_interval > 0:
         report.add(
-            "outbound requests are rate limited",
+            "Ashby board requests are rate limited",
             PASS,
             f"network.min_request_interval = {network.min_request_interval}s, "
             "enforced with a lock shared by every worker thread, so the ceiling "
-            "is global rather than per-thread.",
+            "is global rather than per-thread. Discovery and robots.txt "
+            "requests are not paced by it.",
         )
     else:
         report.add(
-            "outbound requests are rate limited",
+            "Ashby board requests are rate limited",
             WARN,
             "network.min_request_interval = 0, so requests are paced only by "
             "concurrency. Consider a small positive interval.",
@@ -523,7 +524,7 @@ def _check_retry_after(report: AuditReport, root: Path) -> None:
     honors_header = "Retry-After" in source
     if has_429 and honors_header:
         report.add(
-            "HTTP 429 is handled and Retry-After honored",
+            "Ashby HTTP 429 is handled and Retry-After honored",
             PASS,
             "jobfinder/sources/ashby.py treats 429 as retryable and reads the "
             "server's Retry-After header (seconds or HTTP-date) before waiting.",
@@ -535,7 +536,7 @@ def _check_retry_after(report: AuditReport, root: Path) -> None:
         if not honors_header:
             missing.append("Retry-After is not read")
         report.add(
-            "HTTP 429 is handled and Retry-After honored",
+            "Ashby HTTP 429 is handled and Retry-After honored",
             FAIL,
             "; ".join(missing),
             "Back off when a server asks you to.",

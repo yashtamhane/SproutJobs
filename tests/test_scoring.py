@@ -395,7 +395,7 @@ class TestAllLevelsPostings:
         assert result.category == "weak_match"
 
     def test_an_undetermined_all_levels_posting_stays_weak_and_uncertain(self) -> None:
-        """The Heliux case: 'All Levels' with nothing said about seniority."""
+        """An 'All Levels' posting with nothing said about seniority."""
 
         result = score_job(
             "Software Engineer, Core Platform (All Levels)",

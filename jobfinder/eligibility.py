@@ -189,7 +189,7 @@ _NON_EXPERIENCE_CONTEXT = re.compile(
 #
 # A duration only becomes a *requirement* when the experience belongs to the
 # applicant.  Job descriptions are full of durations that belong to somebody
-# else — "Prophet Security's founding team brings more than 30 years of
+# else — "Contoso Security's founding team brings more than 30 years of
 # cybersecurity experience" is a boast about the founders, and reading it as a
 # thirty-year requirement turns an explicit new-grad posting into a hard
 # blocker.
@@ -200,7 +200,7 @@ _NON_EXPERIENCE_CONTEXT = re.compile(
 # one the sentence is actually about.
 # ---------------------------------------------------------------------------
 
-# "our", "the", "their", or any possessive company name ("Prophet Security's").
+# "our", "the", "their", or any possessive company name ("Contoso Security's").
 # The gap is one word at most: "our founding team", "our small team", but not
 # "our ideal staff security engineer", which is a description of the applicant.
 _COMPANY_POSSESSIVE = r"(?:our|the|their|its|his|her|[a-z0-9][\w.&'-]*'s)\s+(?:\w+\s+){0,1}"
@@ -222,7 +222,7 @@ _THIRD_PARTY_VERB = (
     r"averages?|averaging|accumulated|amassed|includes?|including)"
 )
 _THIRD_PARTY_ATTRIBUTION = re.compile(
-    # "our founding team brings", "Prophet Security's founders have"
+    # "our founding team brings", "Contoso Security's founders have"
     rf"\b{_COMPANY_POSSESSIVE}{_THIRD_PARTY_NOUN}\s+(?:\w+\s+){{0,1}}?{_THIRD_PARTY_VERB}\b"
     # Bare plural subject with a plural verb: "founders bring".  Restricted to
     # subjects that can only be the company's own people — "engineers have" and
@@ -277,7 +277,7 @@ def _clause_before(source: str, position: int) -> str:
 
     Attribution is decided within a clause rather than a fixed character
     window, so a sentence three lines earlier can never claim a number, and a
-    long subject ("Prophet Security's founding team brings more than ") is
+    long subject ("Contoso Security's founding team brings more than ") is
     never truncated away.
     """
 

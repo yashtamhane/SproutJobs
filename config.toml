@@ -37,8 +37,11 @@ include_compensation = true
 
 
 [network]
-# Conservative by design. These limits apply to every outbound request:
-# board fetches, discovery reads and robots.txt lookups alike.
+# Conservative by design. The timeout is the base for every outbound request;
+# discovery derives its own from it (robots.txt lookups cap it at 15s, archive
+# indexes raise it). Concurrency, retries, backoff, Retry-After handling and
+# min_request_interval apply to Ashby board fetches only. Discovery reads and
+# robots.txt lookups make a single attempt and are not paced.
 request_timeout = 20.0
 # Worker threads. The configuration validator refuses anything above 8.
 concurrency = 4

@@ -320,7 +320,7 @@ def score_job(
 
     if eligibility_result.graduation.status == "compatible":
         fit += 35
-        reasons.append(ScoreReason("compatible_2026_graduation_window", 35, None, MEDIUM))
+        reasons.append(ScoreReason("compatible_graduation_window", 35, None, MEDIUM))
     elif eligibility_result.graduation.status == "incompatible":
         penalty -= 70
         reasons.append(ScoreReason("incompatible_graduation_window", -70, None, HIGH))

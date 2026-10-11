@@ -119,8 +119,8 @@ class PublicPageDiscoverer(PublicDatasetDiscoverer):
     """Same safe harvester for user-configured public HTML pages.
 
     Identical behavior to the parent; it exists as a separate provider so a
-    page you added yourself is reported, cached and rate-limited under its own
-    name rather than blending into the curated dataset list.
+    page you added yourself is reported and cached under its own name rather
+    than blending into the curated dataset list.
     """
 
     name = "public_page"

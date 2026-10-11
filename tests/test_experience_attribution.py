@@ -5,9 +5,9 @@ descriptions are full of durations that belong to somebody else — founders,
 advisors, the leadership team — and reading those as requirements turned an
 explicit new-grad posting into a hard blocker.
 
-The fixture below is the live Prophet Security posting that exposed the bug.
-Its whole description contains exactly one "years" phrase, and that phrase is
-about the founding team.
+The fixture below is a synthetic posting with the same structure as the real
+one that exposed the bug.  Its whole description contains exactly one "years"
+phrase, and that phrase is about the founding team.
 """
 
 from __future__ import annotations
@@ -23,64 +23,63 @@ from jobfinder.experience import classify_experience
 from jobfinder.scoring import score_job
 
 
-PROPHET_TITLE = "Software Engineer, Backend New Graduate"
-PROPHET_DESCRIPTION = """Software Engineer — New Graduate
+CONTOSO_TITLE = "Software Engineer, Backend New Graduate"
+CONTOSO_DESCRIPTION = """Software Engineer — New Graduate
 
 We're seeking recent and upcoming graduates to join our engineering team.
 
-As a New Graduate Software Engineer, you'll help build and evolve the core
-backend systems that power our AI SOC analyst, working in Python and Go on
+As a New Graduate Software Engineer, you'll help build and grow the backend
+systems behind our alert triage product, working in Python and Go on
 services, data pipelines and APIs.
 
-Your work directly impacts customer success. You'll work closely with our
-customers, understand their needs, and see firsthand how your work makes a
-difference.
+Your work reaches customers quickly. You'll talk with the teams who use the
+product, learn what they need, and see how your changes help them.
 
-Prophet Security's founding team brings more than 30 years of cybersecurity
-experience from leading companies, including Abnormal Security, Expel,
-Mandiant, McAfee, Oracle, Red Canary and Splunk.
+Contoso Security's founding team brings more than 30 years of cybersecurity
+experience from companies including Litware, Northwind Traders, Tailspin Toys
+and Woodgrove Bank.
 
 What we're looking for
 - Recently completed or currently completing a bachelor's or master's degree in
-  Computer Science, Engineering, or a related technical field.
-- Experience with one or more relevant programming languages, such as Python or
-  Go, through coursework, research, internships, or personal projects.
-- Experience with backend services, distributed systems, cloud infrastructure,
-  cybersecurity, or machine learning is helpful but not required.
+  Computer Science or a related technical field.
+- Experience with a programming language such as Python or Go, through
+  coursework, research, internships, or personal projects.
+- Experience with backend services, cloud infrastructure, security tooling, or
+  machine learning is helpful but not required.
 """
 
 
-class TestProphetSecurityRegression:
-    """The live false negative that prompted this fix."""
+class TestContosoSecurityRegression:
+    """A synthetic reproduction of the false negative that prompted this fix."""
 
     def test_the_founding_team_boast_is_not_a_requirement(self) -> None:
-        assert extract_year_requirements(PROPHET_DESCRIPTION) == ()
+        assert extract_year_requirements(CONTOSO_DESCRIPTION) == ()
 
     def test_the_only_duration_is_attributed_to_the_founders(self) -> None:
-        found = experience_attribution(PROPHET_DESCRIPTION)
+        found = experience_attribution(CONTOSO_DESCRIPTION)
         assert len(found) == 1, "the posting states exactly one duration"
         assert found[0]["phrase"].strip().startswith("30")
         assert found[0]["applicant"] is False
         assert "founding team" in found[0]["clause"]
 
     def test_no_seniority_or_four_plus_flag_survives(self) -> None:
-        analysis = analyze_eligibility(PROPHET_TITLE, PROPHET_DESCRIPTION, "Palo Alto")
+        analysis = analyze_eligibility(CONTOSO_TITLE, CONTOSO_DESCRIPTION, "Palo Alto")
         assert "four_plus_years_required" not in analysis.flags
         assert "senior_role" not in analysis.flags
         assert analysis.seniority.likely_senior is False
 
     def test_it_is_recognised_as_an_explicit_new_grad_role(self) -> None:
         evidence = classify_experience(
-            PROPHET_TITLE,
-            PROPHET_DESCRIPTION,
-            extract_year_requirements(PROPHET_DESCRIPTION),
+            CONTOSO_TITLE,
+            CONTOSO_DESCRIPTION,
+            extract_year_requirements(CONTOSO_DESCRIPTION),
         )
         assert evidence.category == "explicit_new_grad"
         assert evidence.confidence == "high"
         assert evidence.hard_blocker is False
 
     def test_the_scored_result_is_a_high_confidence_new_grad_match(self) -> None:
-        result = score_job(PROPHET_TITLE, PROPHET_DESCRIPTION, "Palo Alto (Hybrid)")
+        result = score_job(CONTOSO_TITLE, CONTOSO_DESCRIPTION, "Palo Alto (Hybrid)")
         assert result.experience_category == "explicit_new_grad"
         assert result.evidence_confidence == "high"
         assert result.entry_level_score >= 60
@@ -89,7 +88,7 @@ class TestProphetSecurityRegression:
         assert result.blocker_status != "blocked"
 
     def test_no_entry_level_evidence_is_never_reported(self) -> None:
-        result = score_job(PROPHET_TITLE, PROPHET_DESCRIPTION, "Palo Alto (Hybrid)")
+        result = score_job(CONTOSO_TITLE, CONTOSO_DESCRIPTION, "Palo Alto (Hybrid)")
         signals = {reason.signal for reason in result.reasons}
         assert "no_entry_level_evidence" not in signals
         assert "explicit_new_grad" in signals
@@ -97,7 +96,7 @@ class TestProphetSecurityRegression:
     def test_authorization_is_read_from_the_posting_not_invented(self) -> None:
         """The posting says nothing about sponsorship, so neither do we."""
 
-        analysis = analyze_eligibility(PROPHET_TITLE, PROPHET_DESCRIPTION, "Palo Alto")
+        analysis = analyze_eligibility(CONTOSO_TITLE, CONTOSO_DESCRIPTION, "Palo Alto")
         assert analysis.work_authorization.status == "unspecified"
         assert not analysis.work_authorization.explicit_blocker
 

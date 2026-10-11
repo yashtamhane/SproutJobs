@@ -425,7 +425,7 @@ class ReportingTests(unittest.TestCase):
 
     def test_a_collapsed_opportunity_discloses_how_many_postings_it_covers(self):
         row = {
-            "company_name": "Heliux",
+            "company_name": "Fabrikam",
             "title": "Software Engineer, Core Platform (All Levels)",
             "location": "HQ (San Francisco, CA)",
             "search_score": 45,

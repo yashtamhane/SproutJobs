@@ -324,41 +324,41 @@ class TestSummaryOutput:
         assert "acme" in text
 
 
-HELIUX_DESCRIPTION = (
-    "<p>Heliux is building the AI-native operating system for the manufacturing "
-    "enterprise. You will design, build and maintain distributed backend services "
-    "in Python and Go, own features end to end, and work directly with founders on "
-    "the core platform that everything else depends on.</p>"
+FABRIKAM_DESCRIPTION = (
+    "<p>Fabrikam builds planning software for industrial manufacturers. You will "
+    "design, build and maintain distributed backend services in Python and Go, own "
+    "features end to end, and work directly with the founders on the core platform "
+    "that everything else depends on.</p>"
 )
 
 
-def heliux_board(count: int = 6) -> list[dict]:
-    """The real shape of the Heliux board: one opening under six source ids."""
+def fabrikam_board(count: int = 6) -> list[dict]:
+    """A synthetic board shaped like a real one: one opening under six source ids."""
 
     return [
         raw_job(
-            f"heliux-{index}",
+            f"fabrikam-{index}",
             "Software Engineer, Core Platform (All Levels)",
-            HELIUX_DESCRIPTION,
+            FABRIKAM_DESCRIPTION,
             location="HQ (San Francisco, CA)",
             workplaceType="OnSite",
             publishedAt=f"2026-08-20T19:40:5{index}.000Z",
-            jobUrl=f"https://jobs.ashbyhq.com/acme/heliux-{index}",
-            applyUrl=f"https://jobs.ashbyhq.com/acme/heliux-{index}/application",
+            jobUrl=f"https://jobs.ashbyhq.com/acme/fabrikam-{index}",
+            applyUrl=f"https://jobs.ashbyhq.com/acme/fabrikam-{index}/application",
         )
         for index in range(count)
     ]
 
 
 class TestDuplicateOpportunities:
-    """The Heliux case, end to end through the real pipeline."""
+    """The duplicated-opening case, end to end through the real pipeline."""
 
     def _rows(self, path: Path) -> list[dict]:
         with path.open(encoding="utf-8", newline="") as handle:
             return list(csv.DictReader(handle))
 
     def test_repeated_postings_appear_once_in_both_reports(self, config) -> None:
-        source = FakeSource({"acme": heliux_board()})
+        source = FakeSource({"acme": fabrikam_board()})
         summary = run_pipeline(config, source=source, discoverers=[FakeDiscoverer(["acme"])])
 
         # Every source record is still stored.
@@ -377,7 +377,7 @@ class TestDuplicateOpportunities:
         assert summary.collapsed_duplicates == 5
 
     def test_the_displayed_apply_link_belongs_to_the_shown_record(self, config) -> None:
-        source = FakeSource({"acme": heliux_board()})
+        source = FakeSource({"acme": fabrikam_board()})
         summary = run_pipeline(config, source=source, discoverers=[FakeDiscoverer(["acme"])])
 
         exported = self._rows(Path(summary.csv_path))[0]
@@ -389,7 +389,7 @@ class TestDuplicateOpportunities:
     def test_repeated_runs_add_no_further_display_duplicates(self, config) -> None:
         """(d) Re-running must not multiply what the reader sees."""
 
-        source = FakeSource({"acme": heliux_board()})
+        source = FakeSource({"acme": fabrikam_board()})
         discoverer = FakeDiscoverer(["acme"])
         first = run_pipeline(config, source=source, discoverers=[discoverer])
         second = run_pipeline(config, source=source, discoverers=[])
@@ -417,11 +417,11 @@ class TestDuplicateOpportunities:
         assert summary.collapsed_duplicates == 0
 
     def test_a_closed_duplicate_does_not_replace_the_active_one(self, config) -> None:
-        source = FakeSource({"acme": heliux_board()})
+        source = FakeSource({"acme": fabrikam_board()})
         run_pipeline(config, source=source, discoverers=[FakeDiscoverer(["acme"])])
 
         # The board drops all but one id; the rest close but stay in the database.
-        source.boards["acme"] = heliux_board()[:1]
+        source.boards["acme"] = fabrikam_board()[:1]
         summary = run_pipeline(config, source=source, discoverers=[])
 
         assert summary.jobs_closed == 5
@@ -431,7 +431,7 @@ class TestDuplicateOpportunities:
         assert exported[0]["source_company_slug"] == "acme"
 
     def test_the_canonical_key_is_stored_for_debugging(self, config) -> None:
-        source = FakeSource({"acme": heliux_board()})
+        source = FakeSource({"acme": fabrikam_board()})
         run_pipeline(config, source=source, discoverers=[FakeDiscoverer(["acme"])])
 
         database = Database(config.database_path)

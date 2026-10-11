@@ -6,7 +6,8 @@ SproutJobs finds public [Ashby](https://jobs.ashbyhq.com) job boards, asks Ashby
 public API what is currently posted on them, works out which roles a new graduate could
 actually get, and serves it all as a searchable dashboard on your own machine.
 
-No account. No API key. No subscription. Nothing leaves your computer.
+No account. No API key. No subscription. No telemetry. Job data and your dashboard searches
+stay on your computer; fetching public sources does send network requests to them.
 
 **It never applies for you.** No forms, no messages, no accounts created on your behalf.
 The last step is always yours: click **Apply** and fill in the employer's own application.
@@ -111,14 +112,6 @@ python -m pip install -r requirements.txt
 python -m jobfinder run
 python -m jobfinder serve --open
 ```
-
-### Screenshots
-
-<!-- Add screenshots here. Note that any screenshot of a real run contains live
-     job text and company names; see SECURITY.md before publishing one. -->
-
-*Not included yet.* A screenshot of a live dashboard shows real postings from real
-employers, so none is committed. Run it and see your own.
 
 ---
 
@@ -408,8 +401,9 @@ requirements. This is deliberately conservative, so you may still see two simila
 
 ## Privacy and data storage
 
-- **Everything is local.** One SQLite file at `data/jobfinder.sqlite3`, plus exports in
-  `output/`. There is no hosted database, no account, no sync.
+- **Job data stays local.** One SQLite file at `data/jobfinder.sqlite3`, plus exports in
+  `output/`. There is no hosted database, no account, no sync. Fetching public sources
+  does send network requests to them; [SOURCES.md](SOURCES.md) lists every one.
 - **No telemetry.** Nothing reports what you searched, opened, or applied to. Anywhere.
 - **Nothing is collected about you.** SproutJobs stores public job postings. It has no
   concept of a user profile, and prompts for no password, resume or personal identifier.

@@ -35,10 +35,15 @@ was observed on a stated review date.
 
 ### Rate limiting
 
-A minimum interval separates the *start* of any two outbound requests
-(`network.min_request_interval`, default 0.15s). It is enforced with a lock
-shared by every worker thread, so the ceiling is global rather than per-thread —
-raising concurrency does not raise the request rate.
+A minimum interval separates the *start* of any two requests to Ashby's
+posting API (`network.min_request_interval`, default 0.15s). It is enforced
+with a lock shared by every worker thread, so the ceiling is global rather than
+per-thread — raising concurrency does not raise the request rate.
+
+Discovery reads and `robots.txt` lookups are not paced by this interval. They
+are few per run instead: a discovery source whose cached slugs are still fresh
+is not fetched at all, and each host's `robots.txt` is fetched once and cached
+for the run.
 
 ### Bounded concurrency
 
@@ -49,14 +54,24 @@ against anyone's infrastructure.
 ### Timeouts, retries and backoff
 
 Every request carries a timeout (`network.request_timeout`, default 20s). Failed
-requests are retried a bounded number of times (default 3) with an exponentially
-growing delay plus jitter, so several workers do not retry in lockstep.
+Ashby board requests are retried a bounded number of times (default 3) with an
+exponentially growing delay plus jitter, so several workers do not retry in
+lockstep.
+
+Discovery reads and `robots.txt` lookups make a single attempt and are not
+retried. A failed discovery read falls back to that source's previously cached
+slugs when there are any, and is reported in the run summary.
 
 ### HTTP 429 handling
 
-A 429 response is treated as retryable, and the server's own `Retry-After`
-header is honored — both the seconds form and the HTTP-date form — capped at
-120 seconds. When a server asks for a pause, it gets one.
+A 429 response from Ashby's posting API is treated as retryable, and the
+server's own `Retry-After` header is honored — both the seconds form and the
+HTTP-date form — capped at 120 seconds. When Ashby asks for a pause, it gets
+one.
+
+Discovery reads and `robots.txt` lookups do not read `Retry-After`. Because
+they are never retried, a 429 there ends that fetch rather than prompting a
+second request.
 
 ### robots.txt is consulted, and a refusal is accepted
 
@@ -123,8 +138,9 @@ application always happens on the employer's page, in your hands.
 
 The database is a SQLite file inside your own project directory. The dashboard
 is an HTTP server bound to `127.0.0.1`. There is no hosted database, no account,
-no sync, no telemetry, and no analytics. Nothing you do with SproutJobs is
-reported anywhere.
+no sync, no telemetry, and no analytics. Job data and dashboard search activity
+stay local. The network requests SproutJobs makes are fetches of the public
+sources listed in [SOURCES.md](SOURCES.md).
 
 ### Generated job data stays local and untracked
 
