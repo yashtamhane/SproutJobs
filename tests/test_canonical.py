@@ -123,7 +123,9 @@ class TestSeparateOpportunitiesSurvive:
             description_text=(
                 "About the team. Our Field Robotics group writes the control software for "
                 "autonomous forklifts in partner warehouses, from path planning and obstacle "
-                "avoidance to the fleet dashboard that shift supervisors watch."
+                "avoidance to the fleet dashboard that shift supervisors watch. Engineers "
+                "here tune sensor fusion, replay recorded lidar logs in simulation, and "
+                "visit customer sites to watch new vehicles handle pallets safely."
             ),
         )
         billing = fabrikam(
@@ -131,10 +133,15 @@ class TestSeparateOpportunitiesSurvive:
             description_text=(
                 "About the team. Our Billing and Payments group owns invoicing, tax "
                 "calculation and payment reconciliation for every customer account, and "
-                "keeps the ledger consistent across currencies and refunds."
+                "keeps the ledger consistent across currencies and refunds. Engineers here "
+                "design idempotent payment workflows, audit monthly revenue reports with "
+                "finance, and handle disputed charges raised by enterprise buyers."
             ),
         )
 
+        # Both are long enough to be compared, so they must stay apart on content
+        # rather than through the too-short-to-compare fallback.
+        assert same_opportunity(robotics, billing) == (False, "different_description")
         assert len(canonicalize([robotics, billing])) == 2
 
     def test_different_seniority_stays_separate(self) -> None:
