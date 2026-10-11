@@ -20,54 +20,52 @@ from jobfinder.normalize import html_to_text
 from jobfinder.scoring import score_job
 
 
-# The exact sentence from Inductive Automation LLC — "Quality Assurance
-# Engineer I", which the adjacency-based parser scored 71/strong_match while
-# reporting "Sponsorship not mentioned".
-INDUCTIVE_SENTENCE = (
-    "At this time, we are unable to offer employment for individuals located "
-    "outside of the United States and/or those who require sponsorship for "
-    "employment visa status (e.g., H-1B visa status). We know you've got a lot "
-    "of options when seeking an employer where your skills and talents will "
-    "shine, so we really appreciate that you considered us."
+# A synthetic sentence with the shape that broke the adjacency-based parser,
+# which scored such a posting as a strong match while reporting "Sponsorship
+# not mentioned": the refusal opens the sentence, and the word it refuses
+# arrives only after a long intervening clause.
+LONG_GAP_REFUSAL = (
+    "For the time being, we are unable to offer employment to people who live "
+    "outside of the United States and/or to anyone who requires sponsorship for "
+    "an employment visa (such as H-1B status). Thank you for reading this far "
+    "and for thinking of our team while you weigh your next move."
 )
 
 
-class TestInductiveAutomationRegression:
-    """The live false negative that prompted this audit."""
+class TestLongGapRefusalRegression:
+    """A synthetic reproduction of the false negative that prompted this audit."""
 
-    def test_the_exact_live_sentence_is_a_blocker(self) -> None:
-        analysis = detect_work_authorization(INDUCTIVE_SENTENCE)
+    def test_the_long_gap_sentence_is_a_blocker(self) -> None:
+        analysis = detect_work_authorization(LONG_GAP_REFUSAL)
         assert analysis.explicit_blocker
         assert "no_sponsorship" in analysis.flags
         assert analysis.status == "likely_ineligible"
 
     def test_it_is_never_reported_as_unmentioned(self) -> None:
-        assert detect_work_authorization(INDUCTIVE_SENTENCE).status != "unspecified"
+        assert detect_work_authorization(LONG_GAP_REFUSAL).status != "unspecified"
 
     def test_the_refusal_survives_the_intervening_clause(self) -> None:
-        """89 characters separate 'employment' from 'sponsorship' here."""
+        """105 characters separate 'unable to offer employment' from 'sponsorship' here."""
 
-        gap = INDUCTIVE_SENTENCE.lower().index("sponsorship") - INDUCTIVE_SENTENCE.lower().index(
+        gap = LONG_GAP_REFUSAL.lower().index("sponsorship") - LONG_GAP_REFUSAL.lower().index(
             "unable to offer employment"
         )
         assert gap > 80, "the fixture must keep the long gap that broke the old parser"
-        assert detect_work_authorization(INDUCTIVE_SENTENCE).explicit_blocker
+        assert detect_work_authorization(LONG_GAP_REFUSAL).explicit_blocker
 
     def test_entry_level_fit_is_preserved_while_eligibility_blocks(self) -> None:
         """Fit and eligibility are separate questions; both must stay true.
 
-        The live row (Inductive Automation, Quality Assurance Engineer I) comes
-        out of this at ``entry_level_score`` 71 with ``search_score`` 0 — the
-        Engineer I title still earns its fit, and the sponsorship restriction
-        still caps the ranked score.  ``Software Engineer I`` stands in here
-        only because the real posting needs its full 5,686 characters to clear
-        the software classifier, which is a different rule under test elsewhere.
+        The Engineer I title still earns its fit, and the sponsorship
+        restriction still caps the ranked score.  ``Software Engineer I`` and a
+        one-line duty sentence stand in for a full posting so that the software
+        classifier, which is a different rule under test elsewhere, passes.
         """
 
         result = score_job(
             "Software Engineer I",
-            "You will build and maintain backend services in Python. " + INDUCTIVE_SENTENCE,
-            "Folsom, CA",
+            "You will build and maintain backend services in Python. " + LONG_GAP_REFUSAL,
+            "Sacramento, CA",
         )
         assert result.is_software_role
         assert result.entry_level_score >= 60, "the title still says Engineer I"
@@ -323,7 +321,7 @@ class TestFormattingRobustness:
 class TestEligibilityIntegration:
     def test_the_blocker_reaches_the_aggregate_analysis(self) -> None:
         analysis = analyze_eligibility(
-            "Software Engineer I", INDUCTIVE_SENTENCE, "Folsom, CA"
+            "Software Engineer I", LONG_GAP_REFUSAL, "Sacramento, CA"
         )
         assert analysis.likely_ineligible
         assert analysis.authorization_flag == "likely_ineligible"

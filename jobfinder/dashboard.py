@@ -104,7 +104,7 @@ def render_shell(summary: Mapping[str, Any] | None = None) -> str:
         + stat_cells
         + "</div>\n"
         '<p class="generated">Served locally from your own database. '
-        "Nothing leaves this machine.</p>\n"
+        "Your job database and dashboard searches stay local.</p>\n"
         "</div>\n</header>\n"
         '<main class="layout">\n'
         '<section class="filters" aria-labelledby="filters-heading">\n'
