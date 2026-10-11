@@ -62,8 +62,9 @@ rotated addresses, or a headless browser pretending to be a person.
 - **Why enabled:** It is the entire point of the project, it is public and
   keyless by design, and every posting is linked back to the employer's own
   application page rather than re-hosted.
-- **Politeness:** 4 workers by default, configurable up to 8, one request
-  every 0.15s globally across all of them, 20s timeout, 3 retries with
+- **Politeness:** 4 workers by default (the configuration validator accepts
+  1–16; the compliance audit permits 1–8 and fails anything above 8), one
+  request every 0.15s globally across all of them, 20s timeout, 3 retries with
   doubling backoff, and HTTP 429 handled by honoring the server's own
   `Retry-After`.
 

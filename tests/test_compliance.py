@@ -115,7 +115,10 @@ class TestNetworkLimits:
         assert "64" in result.detail
 
     def test_the_config_validator_refuses_high_concurrency_first(self) -> None:
-        """The audit is a backstop; the configuration cannot get there normally."""
+        """The validator refuses anything above 16 before the audit sees it.
+
+        Values from 9 to 16 load, and the audit is what fails them.
+        """
 
         from jobfinder.config import _validate
 

@@ -43,7 +43,8 @@ include_compensation = true
 # min_request_interval apply to Ashby board fetches only. Discovery reads and
 # robots.txt lookups make a single attempt and are not paced.
 request_timeout = 20.0
-# Worker threads. The configuration validator refuses anything above 8.
+# Worker threads, 4 by default. The configuration validator accepts 1-16; the
+# compliance audit permits 1-8 and fails anything above 8.
 concurrency = 4
 retries = 3
 # Doubling delay between retries, with jitter. A 429 response overrides this

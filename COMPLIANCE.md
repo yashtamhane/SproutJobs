@@ -47,9 +47,10 @@ for the run.
 
 ### Bounded concurrency
 
-`network.concurrency` defaults to 4 and the configuration validator refuses any
-value above 8. There is no setting that turns SproutJobs into a wide fan-out
-against anyone's infrastructure.
+`network.concurrency` defaults to 4. The configuration validator accepts values
+from 1 to 16 and refuses anything else. The compliance audit is stricter: it
+permits 1 to 8 and reports any value above 8 as a failure. There is no setting
+that turns SproutJobs into a wide fan-out against anyone's infrastructure.
 
 ### Timeouts, retries and backoff
 

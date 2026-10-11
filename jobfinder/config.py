@@ -76,7 +76,8 @@ DEFAULT_USER_AGENT = "SproutJobs/1.0 (+https://github.com/yashtamhane/SproutJobs
 @dataclass
 class NetworkConfig:
     request_timeout: float = 20.0
-    #: Bounded on purpose.  ``_validate`` refuses anything above 8, so no
+    #: Bounded on purpose.  ``_validate`` accepts 1-16 and refuses anything
+    #: else, and the compliance audit fails anything above 8, so no
     #: configuration can turn this into a wide fan-out against someone's site.
     concurrency: int = 4
     retries: int = 3

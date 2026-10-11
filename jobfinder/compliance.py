@@ -441,14 +441,15 @@ def _check_network_limits(report: AuditReport, config: AppConfig) -> None:
         report.add(
             "request concurrency is bounded",
             PASS,
-            f"network.concurrency = {network.concurrency}; the configuration "
-            "validator refuses anything outside 1-8.",
+            f"network.concurrency = {network.concurrency}; this audit permits 1-8 "
+            "(the configuration validator accepts 1-16).",
         )
     elif network.concurrency > 8:
         report.add(
             "request concurrency is bounded",
             FAIL,
-            f"network.concurrency = {network.concurrency} exceeds the ceiling of 8.",
+            f"network.concurrency = {network.concurrency} exceeds this audit's "
+            "ceiling of 8 (the configuration validator accepts up to 16).",
             "Lower network.concurrency in config.toml.",
         )
     else:

@@ -263,7 +263,7 @@ class TestFormattingRobustness:
 
     def test_a_parenthetical_does_not_break_detection(self) -> None:
         assert detect_work_authorization(
-            "We cannot offer sponsorship for employment visa status (e.g., H-1B visa status)."
+            "We cannot offer sponsorship for an employment visa (such as H-1B status)."
         ).explicit_blocker
 
     def test_a_parenthetical_inside_a_citizenship_phrase(self) -> None:
@@ -273,16 +273,16 @@ class TestFormattingRobustness:
 
     def test_line_breaks_are_handled(self) -> None:
         assert detect_work_authorization(
-            "Additional Information\nAt this time, we are unable to offer employment\n"
-            "for those who require sponsorship for employment visa status."
+            "Additional Information\nFor the time being, we are unable to offer employment\n"
+            "to anyone who requires sponsorship for an employment visa."
         ).explicit_blocker
 
     def test_html_converts_before_detection(self) -> None:
         html = (
-            "<div><h3>Additional Information</h3><p>At this time, we are "
-            "<strong>unable to offer employment</strong> for individuals located "
-            "outside of the United States and/or those who require "
-            "<em>sponsorship</em> for employment visa status (e.g., H-1B visa "
+            "<div><h3>Additional Information</h3><p>For the time being, we are "
+            "<strong>unable to offer employment</strong> to people who live "
+            "outside of the United States and/or to anyone who requires "
+            "<em>sponsorship</em> for an employment visa (such as H-1B "
             "status).</p></div>"
         )
         assert detect_work_authorization(html_to_text(html)).explicit_blocker
