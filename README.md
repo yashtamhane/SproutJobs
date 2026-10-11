@@ -302,11 +302,11 @@ Silence is not rejection. Most postings say nothing about sponsorship and are tr
 **unknown**, not excluded. Only explicit statements count against a job.
 
 Detection is **scoped, not adjacent**. Real postings rarely write "we do not sponsor". They
-write *"at this time, we are unable to offer employment for individuals located outside of
-the United States and/or those who require sponsorship for employment visa status (e.g.,
-H-1B visa status)"* — eighty-nine characters between the refusal and the thing refused. So
-each posting is split into sentences and a refusal counts only when it **governs** a
-sponsorship object in the same sentence.
+write things like *"for the time being, we are unable to offer employment to people who live
+outside of the United States and/or to anyone who requires sponsorship for an employment visa
+(such as H-1B status)"* — 96 characters from the end of the refusal "unable to" to the start
+of "sponsorship", the word it refuses. So each posting is split into sentences and a refusal
+counts only when it **governs** a sponsorship object in the same sentence.
 
 The card names one of four states rather than claiming more certainty than it has:
 
