@@ -118,24 +118,24 @@ class TestSeparateOpportunitiesSurvive:
     def test_materially_different_descriptions_stay_separate(self) -> None:
         """(c) Same title and location, but different teams within the company."""
 
-        life_sciences = fabrikam(
+        robotics = fabrikam(
             "a",
             description_text=(
-                "About the team. Our Life Sciences team partners with major pharma firms, "
-                "academic research centres and MedTech start-ups to design and deliver "
-                "machine learning solutions for drug discovery and clinical trial design."
+                "About the team. Our Field Robotics group writes the control software for "
+                "autonomous forklifts in partner warehouses, from path planning and obstacle "
+                "avoidance to the fleet dashboard that shift supervisors watch."
             ),
         )
-        energy = fabrikam(
+        billing = fabrikam(
             "b",
             description_text=(
-                "About the team. Our Energy Transition and Environment business unit is "
-                "pioneering meaningful change in the clean energy revolution, deploying "
-                "forecasting systems across national grid infrastructure and storage."
+                "About the team. Our Billing and Payments group owns invoicing, tax "
+                "calculation and payment reconciliation for every customer account, and "
+                "keeps the ledger consistent across currencies and refunds."
             ),
         )
 
-        assert len(canonicalize([life_sciences, energy])) == 2
+        assert len(canonicalize([robotics, billing])) == 2
 
     def test_different_seniority_stays_separate(self) -> None:
         senior = fabrikam("a", title="Senior Software Engineer, Core Platform")
