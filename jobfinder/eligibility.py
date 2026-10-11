@@ -684,10 +684,11 @@ level_range = detect_level_range
 # Work authorization
 #
 # Real postings almost never say "we do not sponsor".  They say things like
-# "at this time, we are unable to offer employment for individuals located
-# outside of the United States and/or those who require sponsorship for
-# employment visa status (e.g., H-1B visa status)" — eighty-nine characters
-# between the refusal and the word it refuses.
+# "for the time being, we are unable to offer employment to people who live
+# outside of the United States and/or to anyone who requires sponsorship for
+# an employment visa (such as H-1B status)" — ninety-six characters between
+# the end of the refusal "unable to" and the start of "sponsorship", the word
+# it refuses.
 #
 # So detection is *scoped* rather than adjacent: split the posting into
 # sentences, then look for a refusal that governs a sponsorship object inside
